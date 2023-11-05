@@ -32,7 +32,7 @@ class Product(models.Model):
     productQty=models.CharField(max_length=255,blank=False,default="")
     productDescription = models.TextField(default="")
     productCostPrice = models.DecimalField(max_digits=10, decimal_places=2,blank=False,default=0)
-    productCostPrice = models.DecimalField(max_digits=10, decimal_places=2,blank=False,default=0)
+    productSellingPrice = models.DecimalField(max_digits=10, decimal_places=2,blank=False,default=0)
     productDiscountPercentage = models.DecimalField(max_digits=5, decimal_places=2,default=0.0)
 
     class Meta:

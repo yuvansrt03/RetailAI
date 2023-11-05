@@ -33,6 +33,5 @@ def getRecommendation(request,id):
         past_transactions.append(transactions_string)
     output=simulate_interactions(past_transactions,id)
     result_list = [int(s.split('_')[1]) for s in output if s.split('_')[1].isdigit()]
-    print(result_list)
     filtered_products = [product for product in procSerializer.data if product['productId'] in result_list]
     return Response(filtered_products)
