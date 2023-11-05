@@ -4,30 +4,35 @@ from rest_framework.decorators import api_view
 from .models import Product,Transactions
 from .serializers import ProductSerializer,TransactionsSerializer,ShopSerializer
 import requests
-import pickle
+import pickle,json
+import numpy as np
+import tensorflow as tf
+from MLModels.recommend import simulate_interactions
+
 @api_view(['GET'])
 def getProducts(request):
     data=Product.objects.all()
     serializer=ProductSerializer(data,many=True)
     return Response(serializer.data)
 
-# @api_view(['POST'])
-# def addProduct(request):
-#     serializers=ProductSerializer
-# Function to simulate user interactions and get recommendations
-
-# @api_view(['GET'])
-# def getRecommendation(request,id):
-#     model=pickle.load(open("shopAPI\MLModels\userInterationBasedRecommendation.pkl","rb"))
-#     data=Transactions.objects.filter(customerId=id)
-#     serializer=TransactionsSerializer(data,many=True)
-#     past_transactions=[]
-#     for x in serializer.data:
-#         transaction_binary=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-#         x_products=x['products']
-#         for i in x_products:
-#             transaction_binary[int(i['id'])-1]=1
-#         past_transactions.append(transaction_binary)
-    
-#     return Response(serializer.data)
-    
+@api_view(['GET'])
+def getRecommendation(request,id):
+    data=Product.objects.all()
+    procSerializer=ProductSerializer(data,many=True)
+    data=Transactions.objects.filter(customerId=id)
+    transSerializer=TransactionsSerializer(data,many=True)
+    past_transactions=[]
+    for x in transSerializer.data:
+        data_str = x['products'].replace("'", '"')
+        data = json.loads(data_str)
+        transaction_binary=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        for i in data:
+            index=int(i['id'])-1
+            transaction_binary[int(index)]=1
+        transactions_string = ''.join(str(v) for v in transaction_binary)
+        past_transactions.append(transactions_string)
+    output=simulate_interactions(past_transactions,id)
+    result_list = [int(s.split('_')[1]) for s in output if s.split('_')[1].isdigit()]
+    print(result_list)
+    filtered_products = [product for product in procSerializer.data if product['productId'] in result_list]
+    return Response(filtered_products)

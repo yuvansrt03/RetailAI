@@ -1,7 +1,8 @@
 from django.db import models
 from django.utils import timezone
 from jsonfield import JSONField
-
+import tensorflow as tf
+import numpy as np
 class Shop(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255,blank=False,default="")
@@ -39,3 +40,4 @@ class Product(models.Model):
 
     def __str__(self):
         return str(self.id)
+    
